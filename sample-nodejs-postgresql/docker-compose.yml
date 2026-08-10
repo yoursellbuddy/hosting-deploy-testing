@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    container_name: sample_nodejs_pg_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres_db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgrespassword
+      - DB_NAME=sample_node_pg_db
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: sample_postgres_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_DB=sample_node_pg_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sample_node_pg_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pg_data:
