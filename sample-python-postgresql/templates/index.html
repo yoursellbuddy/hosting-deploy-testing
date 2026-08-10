@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Flask & PostgreSQL Hosting Test Suite</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Background Ambient Glow -->
+    <div class="bg-gradient-glow">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="#" class="brand-logo">
+                <span class="logo-icon">🐍</span>
+                <span class="logo-text">Python<span class="logo-accent">Postgres.test</span></span>
+            </a>
+            
+            <div class="header-status">
+                <span id="pyStatusBadge" class="status-badge live">
+                    <span class="pulse-dot green"></span>
+                    Python: Online
+                </span>
+                <span id="dbStatusBadge" class="status-badge pending">
+                    <span class="pulse-dot yellow"></span>
+                    PostgreSQL: Checking...
+                </span>
+                <button id="themeToggle" class="icon-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-card">
+            <div class="hero-badge">
+                <span class="sparkle">⚡</span> Full-Stack Python Flask & PostgreSQL Health Inspector
+            </div>
+            <h1 class="hero-title">
+                Python + PostgreSQL <span class="gradient-text">Deployment Test</span>
+            </h1>
+            <p class="hero-subtitle">
+                Verify Python runtime, environment variable injection, psycopg2-binary database connection pooling, auto-migration scripts, and CRUD query execution.
+            </p>
+        </section>
+
+        <!-- Status Cards Grid -->
+        <section class="status-grid">
+            <!-- Python Status Card -->
+            <div class="card status-card">
+                <div class="card-header">
+                    <div class="card-icon yellow">🐍</div>
+                    <div>
+                        <h3>Python & Flask Engine</h3>
+                        <span class="card-sub" id="lblPyEnv">Environment: production</span>
+                    </div>
+                </div>
+                <div class="status-details">
+                    <div class="stat-row">
+                        <span>Python Version:</span>
+                        <strong id="lblPyVersion">Python 3.x</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Framework:</span>
+                        <strong id="lblFramework">Flask 3.x (WSGI)</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Server Timestamp:</span>
+                        <strong id="lblServerTime" class="code-font">--:--:--</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PostgreSQL Database Status Card -->
+            <div class="card status-card">
+                <div class="card-header">
+                    <div class="card-icon blue">🐘</div>
+                    <div>
+                        <h3>PostgreSQL Database Engine</h3>
+                        <span class="card-sub" id="lblDbHostInfo">Host: 127.0.0.1:5432</span>
+                    </div>
+                </div>
+                <div class="status-details">
+                    <div class="stat-row">
+                        <span>Connection Status:</span>
+                        <strong id="lblDbState" class="text-warning">Checking...</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>psycopg2 Ping Latency:</span>
+                        <strong id="lblDbPing">-- ms</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>PostgreSQL Version:</span>
+                        <strong id="lblDbVersion">--</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive CRUD Testing & Terminal Logs Section -->
+        <section class="main-workspace-grid">
+            <!-- Left: PostgreSQL CRUD Item Tester -->
+            <div class="card crud-card">
+                <div class="card-title-bar">
+                    <h3>📝 PostgreSQL CRUD Operations</h3>
+                    <button class="btn btn-sm btn-outline" onclick="loadItems()">↻ Refresh Data</button>
+                </div>
+                
+                <!-- Create Item Form -->
+                <form id="createRecordForm" class="record-form">
+                    <div class="form-row">
+                        <input type="text" id="inputTitle" placeholder="Test Record Title (e.g. Python PG Verification)" required class="form-input">
+                        <select id="selectStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Testing">Testing</option>
+                            <option value="Verified">Verified</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="inputDetails" placeholder="Details / Description (optional)" class="form-input">
+                        <button type="submit" id="btnSubmitRecord" class="btn btn-primary">
+                            ➕ Insert into PG DB
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Data Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Details</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Loading data from PostgreSQL database...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Real-time Terminal Logger -->
+            <div class="card console-card">
+                <div class="console-header">
+                    <div class="console-controls">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <span class="console-title">python-flask-postgresql.log</span>
+                    <button class="btn-xs" onclick="clearConsole()">Clear Logs</button>
+                </div>
+                <div class="console-body" id="consoleBody">
+                    <div class="log-entry log-info">[SYSTEM] Initializing Python Flask + PostgreSQL Monitor...</div>
+                </div>
+                <div class="console-actions">
+                    <button class="btn btn-xs btn-outline" onclick="runDbBenchmark()">⚡ Benchmark PG Ping</button>
+                    <button class="btn btn-xs btn-outline" onclick="recheckHealth()">🔄 Trigger Health Re-Check</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Database Connection Troubleshooting Guide (If Offline) -->
+        <section id="dbErrorBanner" class="card error-card hidden">
+            <h3>⚠️ PostgreSQL Connection Pending or Needs Configuration</h3>
+            <p id="dbErrorMsg" class="error-msg-text">Database is unreachable.</p>
+            <div class="troubleshoot-box">
+                <strong>How to resolve:</strong>
+                <ul>
+                    <li>Ensure PostgreSQL server is active on port <code>5432</code>.</li>
+                    <li>Verify credentials in <code>.env</code> file: <code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_NAME</code>.</li>
+                    <li>Install requirements: <code>pip install -r requirements.txt</code>.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>Python Flask & PostgreSQL Hosting Test Suite &bull; Deployment Verification Node</p>
+            <p class="footer-sub">&copy; 2026 Health Diagnostics Suite</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
