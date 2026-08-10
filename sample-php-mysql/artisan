@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+// Register Autoloader if Composer installed
+if (file_exists(__DIR__.'/vendor/autoload.php')) {
+    require __DIR__.'/vendor/autoload.php';
+}
+
+echo "Laravel Artisan Command Runner (Hosting Test Node)\n";
+echo "Usage: php artisan migrate | php artisan db:seed | php serve\n\n";
+
+if ($argc > 1) {
+    $cmd = $argv[1];
+    echo "Executing command: {$cmd}...\n";
+    if ($cmd === 'migrate') {
+        echo "Running database migrations for MySQL...\n";
+        // Connect via PDO and execute migration
+        try {
+            $host = getenv('DB_HOST') ?: '127.0.0.1';
+            $port = getenv('DB_PORT') ?: '3306';
+            $db   = getenv('DB_DATABASE') ?: 'sample_laravel_db';
+            $user = getenv('DB_USERNAME') ?: 'root';
+            $pass = getenv('DB_PASSWORD') ?: 'rootpassword';
+
+            $pdo = new PDO("mysql:host={$host};port={$port}", $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+            $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$db}`;");
+            $pdo->exec("USE `{$db}`;");
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS `test_records` (
+                    `id` INT AUTO_INCREMENT PRIMARY KEY,
+                    `title` VARCHAR(255) NOT NULL,
+                    `details` TEXT NULL,
+                    `status` VARCHAR(50) DEFAULT 'Active',
+                    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ");
+            echo "✅ Migration completed successfully! Table 'test_records' is ready.\n";
+        } catch (\Exception $e) {
+            echo "❌ Migration failed: " . $e->getMessage() . "\n";
+        }
+    } else {
+        echo "Artisan command '{$cmd}' received.\n";
+    }
+}
