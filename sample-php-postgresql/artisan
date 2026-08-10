@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+// Register Autoloader if Composer installed
+if (file_exists(__DIR__.'/vendor/autoload.php')) {
+    require __DIR__.'/vendor/autoload.php';
+}
+
+echo "Laravel Artisan Command Runner (PostgreSQL Test Node)\n";
+echo "Usage: php artisan migrate | php artisan db:seed | php serve\n\n";
+
+if ($argc > 1) {
+    $cmd = $argv[1];
+    echo "Executing command: {$cmd}...\n";
+    if ($cmd === 'migrate') {
+        echo "Running database migrations for PostgreSQL...\n";
+        try {
+            $host = getenv('DB_HOST') ?: '127.0.0.1';
+            $port = getenv('DB_PORT') ?: '5432';
+            $db   = getenv('DB_DATABASE') ?: 'sample_laravel_pg_db';
+            $user = getenv('DB_USERNAME') ?: 'postgres';
+            $pass = getenv('DB_PASSWORD') ?: 'postgrespassword';
+
+            // Connect to default postgres db first
+            $rootPdo = new PDO("pgsql:host={$host};port={$port};dbname=postgres", $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+            
+            // Check if target DB exists
+            $stmt = $rootPdo->prepare("SELECT 1 FROM pg_database WHERE datname = :dbname");
+            $stmt->execute([':dbname' => $db]);
+            if (!$stmt->fetch()) {
+                $rootPdo->exec("CREATE DATABASE \"{$db}\";");
+                echo "Created database \"{$db}\".\n";
+            }
+
+            // Connect to target DB and create table
+            $pdo = new PDO("pgsql:host={$host};port={$port};dbname={$db}", $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS test_records (
+                    id SERIAL PRIMARY KEY,
+                    title VARCHAR(255) NOT NULL,
+                    details TEXT NULL,
+                    status VARCHAR(50) DEFAULT 'Active',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            ");
+            echo "✅ Migration completed successfully! Table 'test_records' is ready in PostgreSQL.\n";
+        } catch (\Exception $e) {
+            echo "❌ Migration failed: " . $e->getMessage() . "\n";
+        }
+    } else {
+        echo "Artisan command '{$cmd}' received.\n";
+    }
+}
