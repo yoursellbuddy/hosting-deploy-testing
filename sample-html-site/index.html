@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HTML Hosting Verification Test Site - Deployment and Server Health Diagnostics Node.">
+    <title>Deployment Verified | HTML Hosting Test Node</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Ambient Animated Background -->
+    <div class="bg-gradient-glow">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="#" class="brand-logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">TestNode<span class="logo-accent">.deploy</span></span>
+            </a>
+            
+            <div class="header-status">
+                <span class="status-badge live">
+                    <span class="pulse-dot"></span>
+                    Hosting Live & Verified
+                </span>
+                <button id="themeToggle" class="icon-btn" title="Toggle Theme" aria-label="Toggle dark/light theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+        <!-- Hero Banner -->
+        <section class="hero-card">
+            <div class="hero-badge">
+                <span class="sparkle">✨</span> HTML Static Web Host Container Ready
+            </div>
+            <h1 class="hero-title">
+                Deployment <span class="gradient-text">Successful</span>
+            </h1>
+            <p class="hero-subtitle">
+                Your static HTML/CSS/JS website has been successfully deployed and provisioned on the web host. All static assets, routing, and HTTP headers are operating normally.
+            </p>
+            <div class="hero-actions">
+                <button class="btn btn-primary" onclick="runDiagnostics()">
+                    ⚡ Run Health Diagnostics
+                </button>
+                <a href="#metrics" class="btn btn-secondary">
+                    📊 View Environment Info
+                </a>
+            </div>
+        </section>
+
+        <!-- Live Server Metrics Grid -->
+        <section id="metrics" class="metrics-grid">
+            <!-- Metric 1: Page Load Speed -->
+            <div class="card metric-card">
+                <div class="card-icon cyan">⚡</div>
+                <div class="metric-info">
+                    <span class="metric-label">Page Render Time</span>
+                    <span class="metric-value" id="valLoadTime">Measuring...</span>
+                    <span class="metric-sub text-success">DOM Ready verified</span>
+                </div>
+            </div>
+
+            <!-- Metric 2: Protocol Security -->
+            <div class="card metric-card">
+                <div class="card-icon emerald">🔒</div>
+                <div class="metric-info">
+                    <span class="metric-label">Security Protocol</span>
+                    <span class="metric-value" id="valProtocol">HTTPS / TLS</span>
+                    <span class="metric-sub" id="valProtocolSub">Encrypted Connection</span>
+                </div>
+            </div>
+
+            <!-- Metric 3: Client Connection -->
+            <div class="card metric-card">
+                <div class="card-icon violet">🌐</div>
+                <div class="metric-info">
+                    <span class="metric-label">Client Viewport</span>
+                    <span class="metric-value" id="valViewport">--- x ---</span>
+                    <span class="metric-sub" id="valDeviceType">Detecting Device...</span>
+                </div>
+            </div>
+
+            <!-- Metric 4: Static File Serving -->
+            <div class="card metric-card">
+                <div class="card-icon amber">📦</div>
+                <div class="metric-info">
+                    <span class="metric-label">Static File Serving</span>
+                    <span class="metric-value text-success">200 OK</span>
+                    <span class="metric-sub">Cache & Assets Loaded</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Diagnostic Tools -->
+        <section class="tools-section">
+            <div class="section-header">
+                <h2>Interactive Diagnostic Utilities</h2>
+                <p>Test responsiveness, asset response latency, and Javascript execution capabilities in real-time.</p>
+            </div>
+
+            <div class="tools-layout">
+                <!-- Diagnostic Console -->
+                <div class="card console-card">
+                    <div class="console-header">
+                        <div class="console-controls">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="console-title">server-health-check.sh</span>
+                        <button class="btn-xs" onclick="clearConsole()">Clear Logs</button>
+                    </div>
+                    <div class="console-body" id="consoleBody">
+                        <div class="log-entry log-info">[SYSTEM] Initializing TestNode diagnostic listener...</div>
+                        <div class="log-entry log-success">[HTTP] index.html loaded (Status Code: 200 OK)</div>
+                        <div class="log-entry log-success">[CSS] style.css stylesheet parsed successfully</div>
+                        <div class="log-entry log-success">[JS] app.js script execution context attached</div>
+                        <div class="log-entry log-info">[HOST] Listening for incoming diagnostic triggers...</div>
+                    </div>
+                </div>
+
+                <!-- Test Operations Panel -->
+                <div class="card ops-card">
+                    <h3>Host Capability Tests</h3>
+                    <p class="text-muted">Click any module below to verify client-server static operations:</p>
+                    
+                    <div class="ops-list">
+                        <button class="ops-item" onclick="testLatency()">
+                            <div class="ops-item-icon">⏱️</div>
+                            <div class="ops-item-info">
+                                <strong>Asset Latency Check</strong>
+                                <span>Measure static file response speed</span>
+                            </div>
+                            <span class="ops-arrow">→</span>
+                        </button>
+
+                        <button class="ops-item" onclick="testBrowserFeatures()">
+                            <div class="ops-item-icon">🧩</div>
+                            <div class="ops-item-info">
+                                <strong>Browser Feature Support</strong>
+                                <span>Check LocalStorage, Fetch, & WebGL</span>
+                            </div>
+                            <span class="ops-arrow">→</span>
+                        </button>
+
+                        <button class="ops-item" onclick="testResponsiveLayout()">
+                            <div class="ops-item-icon">📱</div>
+                            <div class="ops-item-info">
+                                <strong>Layout Engine Verification</strong>
+                                <span>Test CSS Grid & Flexbox rendering</span>
+                            </div>
+                            <span class="ops-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Environment Information Card -->
+        <section class="card env-card">
+            <h3>Environment Inspection Data</h3>
+            <div class="env-grid">
+                <div class="env-item">
+                    <span class="env-key">User Agent:</span>
+                    <span class="env-val" id="envUserAgent">Loading...</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-key">Language:</span>
+                    <span class="env-val" id="envLang">Loading...</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-key">Screen Resolution:</span>
+                    <span class="env-val" id="envScreen">Loading...</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-key">Timezone:</span>
+                    <span class="env-val" id="envTimezone">Loading...</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-key">Server Host Time:</span>
+                    <span class="env-val" id="envServerTime">Loading...</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-key">Storage API Status:</span>
+                    <span class="env-val text-success" id="envStorage">Available</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>HTML Hosting Test Site &bull; Created for Hosting Deployment Testing</p>
+            <p class="footer-sub">&copy; <span id="copyrightYear">2026</span> Deployment Verification Suite</p>
+        </div>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script src="app.js"></script>
+</body>
+</html>
