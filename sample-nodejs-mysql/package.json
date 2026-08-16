@@ -1,16 +1,19 @@
 {
   "name": "sample-nodejs-mysql",
   "version": "1.0.0",
-  "description": "Node.js & MySQL database testing application for hosting deployment verification.",
+  "description": "Node.js & MySQL database testing application with schema migrations.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "migrate": "node migrator.js",
+    "migrate:status": "node migrator.js status"
   },
   "keywords": [
     "nodejs",
     "mysql",
     "express",
+    "migrations",
     "deployment-test",
     "docker",
     "hosting"

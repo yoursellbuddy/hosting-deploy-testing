@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mysql = require('mysql2/promise');
+const { runMigrations, getMigrationStatus } = require('./migrator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,7 +30,8 @@ const getDbConfig = () => ({
     connectTimeout: 5000,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    multipleStatements: true
 });
 
 // Initialize MySQL Connection & Auto Migration
@@ -57,25 +59,10 @@ async function initDatabase() {
         const conn = await pool.getConnection();
         conn.release();
 
-        // 4. Ensure test table exists
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS \`test_records\` (
-                \`id\` INT AUTO_INCREMENT PRIMARY KEY,
-                \`title\` VARCHAR(255) NOT NULL,
-                \`details\` TEXT,
-                \`status\` VARCHAR(50) DEFAULT 'Active',
-                \`created_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        `);
-
-        // Insert sample record if table is empty
-        const [rows] = await pool.query('SELECT COUNT(*) as count FROM `test_records`');
-        if (rows[0].count === 0) {
-            await pool.query(
-                'INSERT INTO `test_records` (title, details, status) VALUES (?, ?, ?)',
-                ['Initial Test Node', 'Sample record created upon first deployment verification.', 'Active']
-            );
-        }
+        // 4. Execute all pending SQL migration files automatically
+        console.log(`[MySQL] Running database migrations from /migrations folder...`);
+        const migrationResult = await runMigrations(pool);
+        console.log(`[MySQL] Migrations finished. Total files: ${migrationResult.total}`);
 
         dbConnected = true;
         lastDbError = null;
@@ -122,7 +109,6 @@ app.get('/api/health', async (req, res) => {
 // Database Detailed Benchmark / Status Endpoint
 app.get('/api/db-status', async (req, res) => {
     if (!dbConnected) {
-        // Recheck connection
         await initDatabase();
     }
 
@@ -168,6 +154,34 @@ app.get('/api/db-status', async (req, res) => {
     }
 });
 
+// GET /api/migrations - Migration Status Endpoint
+app.get('/api/migrations', async (req, res) => {
+    if (!dbConnected) {
+        return res.status(503).json({ error: 'Database connection offline.' });
+    }
+
+    try {
+        const status = await getMigrationStatus(pool);
+        res.json(status);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/migrations/run - Run Pending Migrations Endpoint
+app.post('/api/migrations/run', async (req, res) => {
+    if (!dbConnected) {
+        return res.status(503).json({ error: 'Database connection offline.' });
+    }
+
+    try {
+        const result = await runMigrations(pool);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // GET /api/items - Retrieve all test records
 app.get('/api/items', async (req, res) => {
     if (!dbConnected) {
@@ -191,15 +205,15 @@ app.post('/api/items', async (req, res) => {
         return res.status(503).json({ error: 'Database connection offline.' });
     }
 
-    const { title, details, status } = req.body;
+    const { title, details, status, category } = req.body;
     if (!title || title.trim() === '') {
         return res.status(400).json({ error: 'Title field is required.' });
     }
 
     try {
         const [result] = await pool.query(
-            'INSERT INTO `test_records` (title, details, status) VALUES (?, ?, ?)',
-            [title.trim(), details ? details.trim() : '', status || 'Active']
+            'INSERT INTO `test_records` (title, details, status, category) VALUES (?, ?, ?, ?)',
+            [title.trim(), details ? details.trim() : '', status || 'Active', category || 'General']
         );
 
         const [newRecord] = await pool.query('SELECT * FROM `test_records` WHERE id = ?', [result.insertId]);

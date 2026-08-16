@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     recheckHealth();
     loadItems();
+    loadMigrations();
     initForm();
 
     // Periodic health refresh every 10 seconds
@@ -61,6 +62,7 @@ async function recheckHealth() {
             dbErrorBanner.classList.add('hidden');
 
             runDbBenchmark(); // Fetch ping and table stats
+            loadMigrations();
         } else {
             dbStatusBadge.className = 'status-badge error';
             dbStatusBadge.innerHTML = '<span class="pulse-dot red"></span> MySQL: Offline';
@@ -134,7 +136,64 @@ async function loadItems() {
     }
 }
 
-// 5. Form Handling (Create Record)
+// 5. Fetch & Render Migrations Status
+async function loadMigrations() {
+    const tbody = document.getElementById('migrationsTableBody');
+    try {
+        const res = await fetch('/api/migrations');
+        const data = await res.json();
+
+        if (data.error) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">${data.error}</td></tr>`;
+            return;
+        }
+
+        document.getElementById('lblMigrationsApplied').textContent = `${data.appliedCount} / ${data.total}`;
+        document.getElementById('lblMigrationsPending').textContent = `${data.pendingCount}`;
+
+        if (!data.migrations || data.migrations.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No migration files found in /migrations directory.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.migrations.map(m => `
+            <tr>
+                <td><code class="code-font">${escapeHtml(m.name)}</code></td>
+                <td>
+                    <span class="badge-tag ${m.status === 'APPLIED' ? 'active' : 'testing'}">${m.status}</span>
+                </td>
+                <td class="code-font">${m.executedAt ? new Date(m.executedAt).toLocaleString() : 'Not Executed'}</td>
+            </tr>
+        `).join('');
+
+    } catch (err) {
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-warning">Error loading migrations: ${err.message}</td></tr>`;
+        }
+    }
+}
+
+// 6. Trigger Pending Migrations Execution
+async function runPendingMigrations() {
+    appendLog('[MIGRATOR] Requesting pending database migrations execution...', 'info');
+    try {
+        const res = await fetch('/api/migrations/run', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success) {
+            const applied = data.results.filter(r => r.status === 'APPLIED').length;
+            appendLog(`[MIGRATOR] Migrations finished. ${applied} new migrations applied out of ${data.total}.`, 'success');
+            loadMigrations();
+            loadItems();
+        } else {
+            appendLog(`[MIGRATOR ERROR] ${data.error}`, 'error');
+        }
+    } catch (err) {
+        appendLog(`[MIGRATOR ERROR] ${err.message}`, 'error');
+    }
+}
+
+// 7. Form Handling (Create Record)
 function initForm() {
     const form = document.getElementById('createRecordForm');
     form.addEventListener('submit', async (e) => {

@@ -54,7 +54,7 @@
                 Node.js + MySQL <span class="gradient-text">Deployment Test</span>
             </h1>
             <p class="hero-subtitle">
-                Verify backend API runtime, environment variable injection, database connection pooling, table auto-migrations, and CRUD query execution.
+                Verify backend API runtime, environment variable injection, database connection pooling, schema migrations, and CRUD query execution.
             </p>
         </section>
 
@@ -109,9 +109,34 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Database Migrations Card -->
+            <div class="card status-card">
+                <div class="card-header">
+                    <div class="card-icon amber">🚀</div>
+                    <div>
+                        <h3>Database Migrations</h3>
+                        <span class="card-sub" id="lblMigrationSub">Track SQL Schema Files</span>
+                    </div>
+                </div>
+                <div class="status-details">
+                    <div class="stat-row">
+                        <span>Applied Migrations:</span>
+                        <strong id="lblMigrationsApplied">0 / 0</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Pending Migrations:</span>
+                        <strong id="lblMigrationsPending">0</strong>
+                    </div>
+                    <div class="stat-row" style="margin-top: 6px;">
+                        <button class="btn btn-xs btn-outline" onclick="runPendingMigrations()">▶ Run Pending Migrations</button>
+                        <button class="btn btn-xs btn-outline" onclick="loadMigrations()">↻ Refresh Status</button>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!-- Interactive CRUD Testing & Terminal Logs Section -->
+        <!-- Migration List & Interactive CRUD Section -->
         <section class="main-workspace-grid">
             <!-- Left: MySQL CRUD Item Tester -->
             <div class="card crud-card">
@@ -178,6 +203,30 @@
                     <button class="btn btn-xs btn-outline" onclick="runDbBenchmark()">⚡ Benchmark DB Ping</button>
                     <button class="btn btn-xs btn-outline" onclick="recheckHealth()">🔄 Trigger Health Re-Check</button>
                 </div>
+            </div>
+        </section>
+
+        <!-- Database Migrations Detail Table Section -->
+        <section class="card">
+            <div class="card-title-bar">
+                <h3>📦 Executed & Pending Migration Files</h3>
+                <button class="btn btn-sm btn-outline" onclick="loadMigrations()">↻ Refresh Migrations</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Migration File</th>
+                            <th>Status</th>
+                            <th>Execution Date / Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="migrationsTableBody">
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">Loading migration history...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
