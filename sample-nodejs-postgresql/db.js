@@ -1,8 +1,9 @@
 const { Pool } = require('pg');
 require('dotenv').config();
+const { runMigrations, getMigrationStatus } = require('./migrator');
 
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || '127.0.0.1',
   port: parseInt(process.env.DB_PORT || '5432', 10),
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD,
@@ -33,19 +34,14 @@ async function testConnection(retries = 5, delay = 3000) {
       const res = await currentPool.query('SELECT NOW() as current_time');
       console.log('[DB] Connected to PostgreSQL server successfully! Server Time:', res.rows[0].current_time);
 
-      // Auto-create test_items table if not exists
-      await currentPool.query(`
-        CREATE TABLE IF NOT EXISTS test_items (
-          id SERIAL PRIMARY KEY,
-          title VARCHAR(255) NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-      console.log('[DB] Verified table "test_items" exists.');
+      // Execute SQL schema migrations
+      console.log('[DB] Running database migrations from /migrations folder...');
+      const migrationRes = await runMigrations(currentPool);
+      console.log(`[DB] Migrations finished. Total files: ${migrationRes.total}`);
 
       return {
         status: 'connected',
-        message: 'Connected to PostgreSQL successfully!',
+        message: 'Connected to PostgreSQL and migrations applied successfully!',
         host: dbConfig.host,
         port: dbConfig.port,
         dbname: dbConfig.database,
@@ -71,4 +67,6 @@ async function testConnection(retries = 5, delay = 3000) {
 module.exports = {
   getPool,
   testConnection,
+  runMigrations,
+  getMigrationStatus
 };

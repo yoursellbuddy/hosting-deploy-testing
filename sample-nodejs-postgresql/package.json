@@ -1,12 +1,27 @@
 {
   "name": "sample-nodejs-postgresql",
   "version": "1.0.0",
-  "description": "Sample Node.js + PostgreSQL testing deployment app",
+  "description": "Node.js & PostgreSQL deployment testing application with database schema migrations.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js",
+    "migrate": "node migrator.js",
+    "migrate:status": "node migrator.js status"
   },
+  "keywords": [
+    "nodejs",
+    "postgresql",
+    "postgres",
+    "express",
+    "migrations",
+    "deployment-test",
+    "docker"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "pg": "^8.11.5"
