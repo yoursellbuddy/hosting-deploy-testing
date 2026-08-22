@@ -6,6 +6,19 @@
 
 define('LARAVEL_START', microtime(true));
 
+// Maintenance mode check
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+// Register Composer autoloader & Bootstrap Laravel if installed
+if (file_exists(__DIR__.'/../vendor/autoload.php') && file_exists(__DIR__.'/../bootstrap/app.php')) {
+    require __DIR__.'/../vendor/autoload.php';
+    $app = require_once __DIR__.'/../bootstrap/app.php';
+    $app->handleRequest(\Illuminate\Http\Request::capture());
+    exit;
+}
+
 // Helper: Simple dotenv loader
 function loadEnv($path) {
     if (!file_exists($path)) return;
